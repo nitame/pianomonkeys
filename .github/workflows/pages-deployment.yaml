@@ -1,0 +1,31 @@
+name: Build and deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    name: Deploy to Cloudflare Pages
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+      - name: Build
+        uses: shalzz/zola-deploy-action@v0.19.2
+        env:
+          BUILD_DIR: .
+          OUT_DIR: public
+          BUILD_ONLY: true
+      - name: Publish
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: pianomonkeys
+          directory: public
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
